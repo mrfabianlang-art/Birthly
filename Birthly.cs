@@ -1033,6 +1033,51 @@ namespace LiquidGlassWidget
             return "EN";
         }
 
+        private System.Globalization.CultureInfo GetActiveCultureInfo()
+        {
+            string lang = GetActiveLanguage();
+            string tag = "en-US";
+            switch (lang)
+            {
+                case "DE": tag = "de-DE"; break;
+                case "ES": tag = "es-ES"; break;
+                case "FR": tag = "fr-FR"; break;
+                case "IT": tag = "it-IT"; break;
+                case "PT": tag = "pt-PT"; break;
+                case "NL": tag = "nl-NL"; break;
+                case "PL": tag = "pl-PL"; break;
+                case "RU": tag = "ru-RU"; break;
+                case "UK": tag = "uk-UA"; break;
+                case "TR": tag = "tr-TR"; break;
+                case "JA": tag = "ja-JP"; break;
+                case "ZH": tag = "zh-CN"; break;
+                case "KO": tag = "ko-KR"; break;
+                case "AR": tag = "ar-SA"; break;
+                case "HI": tag = "hi-IN"; break;
+                case "SV": tag = "sv-SE"; break;
+                case "NO": tag = "nb-NO"; break;
+                case "DA": tag = "da-DK"; break;
+                case "FI": tag = "fi-FI"; break;
+                case "CS": tag = "cs-CZ"; break;
+                case "SK": tag = "sk-SK"; break;
+                case "HU": tag = "hu-HU"; break;
+                case "RO": tag = "ro-RO"; break;
+                case "BG": tag = "bg-BG"; break;
+                case "HR": tag = "hr-HR"; break;
+                case "SR": tag = "sr-Cyrl-RS"; break;
+                case "EL": tag = "el-GR"; break;
+                case "HE": tag = "he-IL"; break;
+                case "TH": tag = "th-TH"; break;
+                case "VI": tag = "vi-VN"; break;
+                case "ID": tag = "id-ID"; break;
+                case "MS": tag = "ms-MY"; break;
+                case "FA": tag = "fa-IR"; break;
+                default: tag = "en-US"; break;
+            }
+            try { return System.Globalization.CultureInfo.GetCultureInfo(tag); }
+            catch { return System.Globalization.CultureInfo.InvariantCulture; }
+        }
+
         private static readonly Dictionary<string, string[]> LangDict = new Dictionary<string, string[]>
         {
             // Order: 0=GENERAL, 1=APPEARANCE, 2=WINDOW, 3=LAYERS, 4=BACKUP, 5=SETTINGS, 6=CANCEL, 7=SAVE CHANGES, 8=COPY WISH, 9=WISH, 10=COPIED ✓, 11=EDIT, 12=GENERAL & BIRTHDAYS, 13=LANGUAGE, 14=VERY NEAR HIGHLIGHT (DAYS):, 15=DISPLAY & STARTUP, 16=SHOW AGE BADGE, 17=AUTO-START WITH PC, 18=BIRTHDAY ANIMATION, 19=BIRTHDAY MESSAGE, 20=WINDOW & PERFORMANCE, 21=REAL WINDOW MODE (TASKBAR), 22=LIVE BACKGROUND ON DRAG
@@ -1088,10 +1133,135 @@ namespace LiquidGlassWidget
             "BIRTHDAY ANIMATION","BIRTHDAY MESSAGE","WINDOW & PERFORMANCE","REAL WINDOW MODE (TASKBAR)","LIVE BACKGROUND ON DRAG"
         };
 
+        private static readonly Dictionary<string, string[]> ExtraLangDict = new Dictionary<string, string[]>
+        {
+            // 0=+ ADD, 1=LIST, 2=CAL, 3=TODAY, 4=TOMORROW, 5=DAYS, 6=HRS, 7=MIN, 8=SEC, 9=AGE, 10=TURNS, 11=DAYS LIVED, 12=VIEW, 13=ADD PERSON, 14=EDIT PERSON, 15=NAME, 16=MONTH, 17=YES, DELETE, 18=REPLAY TUTORIAL, 19=RESET EVERYTHING, 20=SEARCH PEOPLE..., 21=CLOSE WIDGET, 22=CLICK SOUND:, 23=CURSOR STYLE:
+            { "DE", new string[] { "+ NEU","LISTE","KAL","HEUTE","MORGEN","TAGE","STD","MIN","SEK","ALTER","WIRD","TAGE GELEBT","ANSEHEN","PERSON HINZUFÜGEN","PERSON BEARBEITEN","NAME","MONAT","JA, LÖSCHEN","TUTORIAL STARTEN","ALLES ZURÜCKSETZEN","PERSONEN SUCHEN...","WIDGET SCHLIESSEN","KLICK-SOUND:","CURSOR-STIL:" } },
+            { "ES", new string[] { "+ AÑADIR","LISTA","CAL","HOY","MAÑANA","DÍAS","HRS","MIN","SEG","EDAD","CUMPLE","DÍAS VIVIDOS","VER","AÑADIR PERSONA","EDITAR PERSONA","NOMBRE","MES","SÍ, ELIMINAR","VER TUTORIAL","RESTABLECER TODO","BUSCAR PERSONAS...","CERRAR WIDGET","SONIDO CLIC:","ESTILO CURSOR:" } },
+            { "FR", new string[] { "+ AJOUTER","LISTE","CAL","AUJOURD'HUI","DEMAIN","JOURS","HRS","MIN","SEC","ÂGE","AURA","JOURS VÉCUS","VOIR","AJOUTER PERSONNE","MODIFIER PERSONNE","NOM","MOIS","OUI, SUPPRIMER","REVOIR TUTORIEL","TOUT RÉINITIALISER","CHERCHER...","FERMER WIDGET","SON CLIC :","CURSEUR :" } },
+            { "IT", new string[] { "+ AGGIUNGI","LISTA","CAL","OGGI","DOMANI","GIORNI","ORE","MIN","SEC","ETÀ","COMPIE","GIORNI VISSUTI","VEDI","AGGIUNGI PERSONA","MODIFICA PERSONA","NOME","MESE","SÌ, ELIMINA","RIPETI TUTORIAL","RIPRISTINA TUTTO","CERCA PERSONE...","CHIUDI WIDGET","SUONO CLIC:","STILE CURSORE:" } },
+            { "PT", new string[] { "+ ADICIONAR","LISTA","CAL","HOJE","AMANHÃ","DIAS","HRS","MIN","SEG","IDADE","FAZ","DIAS VIVIDOS","VER","ADICIONAR PESSOA","EDITAR PESSOA","NOME","MÊS","SIM, EXCLUIR","VER TUTORIAL","REDEFINIR TUDO","BUSCAR PESSOAS...","FECHAR WIDGET","SOM CLIQUE:","ESTILO CURSOR:" } },
+            { "NL", new string[] { "+ NIEUW","LIJST","KAL","VANDAAG","MORGEN","DAGEN","UUR","MIN","SEC","LEEFTIJD","WORDT","DAGEN GELEEFD","BEKIJK","PERSOON TOEVOEGEN","PERSOON BEWERKEN","NAAM","MAAND","JA, VERWIJDER","TUTORIAL HERHALEN","ALLES RESETTEN","ZOEK PERSONEN...","WIDGET SLUITEN","KLIKGELUID:","CURSORSTIJL:" } },
+            { "PL", new string[] { "+ DODAJ","LISTA","KAL","DZIŚ","JUTRO","DNI","GODZ","MIN","SEK","WIEK","KOŃCZY","DNI ŻYCIA","POKAŻ","DODAJ OSOBĘ","EDYTUJ OSOBĘ","IMIĘ","MIESIĄC","TAK, USUŃ","POWTÓRZ SAMOUCZEK","RESETUJ WSZYSTKO","SZUKAJ OSÓB...","ZAMKNIJ WIDŻET","DŹWIĘK KLIKU:","STYL KURSORA:" } },
+            { "RU", new string[] { "+ ДОБАВИТЬ","СПИСОК","КАЛ","СЕГОДНЯ","ЗАВТРА","ДНИ","ЧАС","МИН","СЕК","ВОЗРАСТ","БУДЕТ","ДНЕЙ ПРОЖИТО","ОТКРЫТЬ","ДОБАВИТЬ","ИЗМЕНИТЬ","ИМЯ","МЕСЯЦ","ДА, УДАЛИТЬ","ОБУЧЕНИЕ","СБРОСИТЬ ВСЁ","ПОИСК...","ЗАКРЫТЬ","ЗВУК КЛИКА:","КУРСОР:" } },
+            { "JA", new string[] { "+ 追加","リスト","暦","今日","明日","日","時","分","秒","年齢","歳へ","生きた日数","表示","人を追加","人を編集","名前","月","はい、削除","チュートリアル","すべてリセット","検索...","閉じる","クリック音:","カーソル:" } },
+            { "ZH", new string[] { "+ 添加","列表","日历","今天","明天","天","时","分","秒","年龄","将满","已活天数","查看","添加联系人","编辑联系人","姓名","月份","确认删除","重播教程","重置全部","搜索联系人...","关闭组件","点击音效:","光标样式:" } },
+            { "KO", new string[] { "+ 추가","목록","달력","오늘","내일","일","시간","분","초","나이","곧","살아온 날","보기","사람 추가","사람 편집","이름","월","예, 삭제","튜토리얼","모두 초기화","검색...","위젯 닫기","클릭 사운드:","커서 스타일:" } },
+            { "TR", new string[] { "+ EKLE","LİSTE","TAK","BUGÜN","YARIN","GÜN","SAAT","DK","SN","YAŞ","OLACAK","YAŞANAN GÜN","GÖR","KİŞİ EKLE","KİŞİ DÜZENLE","AD","AY","EVET, SİL","EĞİTİMİ AÇ","HER ŞEYİ SIFIRLA","KİŞİ ARA...","WIDGETI KAPAT","TIKLAMA SESİ:","İMLEÇ STİLİ:" } },
+            { "SV", new string[] { "+ LÄGG TILL","LISTA","KAL","IDAG","IMORGON","DAGAR","TIM","MIN","SEK","ÅLDER","FYLLER","DAGAR LEVDA","VISA","LÄGG TILL PERSON","REDIGERA PERSON","NAMN","MÅNAD","JA, TA BORT","VISA GUIDE","ÅTERSTÄLL ALLT","SÖK PERSONER...","STÄNG WIDGET","KLICKLJUD:","MUSPEKARE:" } },
+            { "PIR", new string[] { "+ RECRUIT","CREW","MAP","TODAY","MORROW","DAYS","HRS","MIN","SEC","YEARS","TURNS","DAYS AT SEA","SPY","ADD MATEY","EDIT MATEY","NAME","MOON","AYE, WALK PLANK","REPLAY MAP","SCUTTLE SHIP","SEARCH CREW...","ABANDON SHIP","CANNON POP:","HOOK STYLE:" } },
+            { "YOD", new string[] { "+ ADD, DO","LIST","CAL","TODAY","TOMORROW","DAYS","HRS","MIN","SEC","AGE","TURNS","DAYS LIVED","VIEW","PERSON, ADD","PERSON, EDIT","NAME","MONTH","DELETE, YES","TUTORIAL, REPLAY","EVERYTHING, RESET","PEOPLE, SEARCH...","WIDGET, CLOSE","CLICK SOUND:","CURSOR STYLE:" } },
+            { "MIN", new string[] { "+ MORE","LISTA","CAL","TODAY","MORROW","DAYS","HRS","MIN","SEC","AGE","TURNS","DAYS BANANA","LOOK","ADD BUDDY","EDIT BUDDY","NAME","MONTH","BYE BYE","TUTORIAL","RESET BANANA","FIND BUDDY...","BYE WIDGET","POP SOUND:","CURSOR:" } }
+        };
+
+        private static readonly string[] ExtraLangKeys = new string[] {
+            "+ ADD","LIST","CAL","TODAY","TOMORROW","DAYS","HRS","MIN","SEC","AGE","TURNS","DAYS LIVED","VIEW",
+            "ADD PERSON","EDIT PERSON","NAME","MONTH","YES, DELETE","REPLAY TUTORIAL","RESET EVERYTHING","SEARCH PEOPLE...","CLOSE WIDGET","CLICK SOUND:","CURSOR STYLE:"
+        };
+
+        private readonly Dictionary<string, string> liveTransCache = new Dictionary<string, string>();
+        private readonly HashSet<string> liveTransPending = new HashSet<string>();
+        private bool liveTransDiskLoaded = false;
+
+        private string GetLangCacheFilePath()
+        {
+            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Birthly");
+            try { if (!Directory.Exists(dir)) Directory.CreateDirectory(dir); } catch { }
+            return Path.Combine(dir, "lang_cache.txt");
+        }
+
+        private void EnsureLangCacheLoaded()
+        {
+            if (liveTransDiskLoaded) return;
+            liveTransDiskLoaded = true;
+            try
+            {
+                System.Net.ServicePointManager.SecurityProtocol = (System.Net.SecurityProtocolType)3072;
+                System.Net.ServicePointManager.DefaultConnectionLimit = 32;
+                string p = GetLangCacheFilePath();
+                if (!File.Exists(p)) return;
+                foreach (string line in File.ReadAllLines(p, Encoding.UTF8))
+                {
+                    int sep = line.IndexOf('\t');
+                    if (sep > 0 && sep + 1 < line.Length)
+                    {
+                        liveTransCache[line.Substring(0, sep)] = line.Substring(sep + 1);
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void AppendLangCacheLine(string cacheKey, string val)
+        {
+            try
+            {
+                string safe = (val ?? "").Replace("\r", " ").Replace("\n", " ").Replace("\t", " ");
+                File.AppendAllText(GetLangCacheFilePath(), cacheKey + "\t" + safe + Environment.NewLine, Encoding.UTF8);
+            }
+            catch { }
+        }
+
+        private string GetGoogleLangCode(string code)
+        {
+            switch (code)
+            {
+                case "ZH": return "zh-CN";
+                case "HE": return "iw";
+                case "PIR": case "TLH": case "QYA": case "VAL": case "DOT": case "YOD": case "MIN": return null;
+                default: return code.ToLowerInvariant();
+            }
+        }
+
+        private void QueueLiveTranslation(string lang, string key)
+        {
+            string gCode = GetGoogleLangCode(lang);
+            if (string.IsNullOrEmpty(gCode)) return;
+            string cacheKey = lang + "|" + key;
+            lock (liveTransPending)
+            {
+                if (liveTransPending.Contains(cacheKey) || liveTransCache.ContainsKey(cacheKey)) return;
+                liveTransPending.Add(cacheKey);
+            }
+            System.Threading.ThreadPool.QueueUserWorkItem(_ =>
+            {
+                try
+                {
+                    System.Net.ServicePointManager.SecurityProtocol = (System.Net.SecurityProtocolType)3072; // TLS 1.2 required on .NET 4.x!
+                    string url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=" + gCode + "&dt=t&q=" + Uri.EscapeDataString(key);
+                    using (System.Net.WebClient wc = new System.Net.WebClient())
+                    {
+                        wc.Encoding = Encoding.UTF8;
+                        string resp = wc.DownloadString(url);
+                        // Extract first translated segment from [[["translated","source",...]]]
+                        int q1 = resp.IndexOf("[[[\"");
+                        if (q1 >= 0)
+                        {
+                            int start = q1 + 4;
+                            int end = resp.IndexOf("\",\"", start);
+                            if (end > start)
+                            {
+                                string tr = resp.Substring(start, end - start).Replace("\\\"", "\"").Replace("\\n", "\n");
+                                if (!string.IsNullOrWhiteSpace(tr))
+                                {
+                                    string trUp = tr.ToUpperInvariant();
+                                    lock (liveTransPending) { liveTransCache[cacheKey] = trUp; }
+                                    AppendLangCacheLine(cacheKey, trUp);
+                                    Interlocked.Exchange(ref dirtyFrame, 1);
+                                    try { renderWakeEvent.Set(); } catch { }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch { }
+            });
+        }
+
         private string L(string key)
         {
             string lang = GetActiveLanguage();
-            if (lang == "EN") return key;
+            if (lang == "EN" || string.IsNullOrEmpty(key)) return key;
             string[] vals;
             if (LangDict.TryGetValue(lang, out vals))
             {
@@ -1100,6 +1270,21 @@ namespace LiquidGlassWidget
                     if (LangKeys[i] == key) return vals[i];
                 }
             }
+            if (ExtraLangDict.TryGetValue(lang, out vals))
+            {
+                for (int i = 0; i < ExtraLangKeys.Length && i < vals.Length; i++)
+                {
+                    if (ExtraLangKeys[i] == key) return vals[i];
+                }
+            }
+            string cacheKey = lang + "|" + key;
+            lock (liveTransPending)
+            {
+                EnsureLangCacheLoaded();
+                string cached;
+                if (liveTransCache.TryGetValue(cacheKey, out cached)) return cached;
+            }
+            QueueLiveTranslation(lang, key);
             return key;
         }
 
@@ -2697,7 +2882,7 @@ namespace LiquidGlassWidget
         {
             if (string.IsNullOrWhiteSpace(editName))
             {
-                editorErrorMsg = "PLEASE ENTER A NAME FIRST";
+                editorErrorMsg = L("PLEASE ENTER A NAME FIRST");
                 activeTextField = "name";
                 Interlocked.Exchange(ref dirtyFrame, 1);
                 return;
@@ -2911,7 +3096,7 @@ namespace LiquidGlassWidget
                     Font titleFont = GetCachedFont(13.5f, FontStyle.Bold, true);
                     Font subFont = GetCachedFont(12f, FontStyle.Regular, false);
                     DrawAdaptiveString(g, "B I R T H L Y", titleFont, edgeMargin + 74f, topPad + 6f, 245);
-                    DrawAdaptiveString(g, "•   " + now.ToString("dd MMMM yyyy").ToUpper(), subFont, edgeMargin + 178f, topPad + 6f, 175);
+                    DrawAdaptiveString(g, "•   " + now.ToString("dd MMMM yyyy", GetActiveCultureInfo()).ToUpper(), subFont, edgeMargin + 178f, topPad + 6f, 175);
 
                     float btnY = topPad;
                     float winCtrlOffset = IsAppWindowModeEnabled() ? 66f : 0f;
@@ -2953,11 +3138,11 @@ namespace LiquidGlassWidget
                     if (pendingDeletePerson == null && currentView == ActiveView.Dashboard)
                     {
                         RectangleF addRect = new RectangleF(addBtnX, btnY, addBtnW, 28f);
-                        DrawAnimatedGlassButton(g, addRect, "+ ADD", false, GetHoverProgress("btn_add", dt), t);
+                        DrawAnimatedGlassButton(g, addRect, L("+ ADD"), false, GetHoverProgress("btn_add", dt), t);
                         zones.Add(new HitZone { Id = "btn_add", Bounds = addRect });
 
                         RectangleF setRect = new RectangleF(setBtnX, btnY, setBtnW, 28f);
-                        DrawAnimatedGlassButton(g, setRect, "SETTINGS", false, GetHoverProgress("btn_settings", dt), t);
+                        DrawAnimatedGlassButton(g, setRect, L("SETTINGS"), false, GetHoverProgress("btn_settings", dt), t);
                         zones.Add(new HitZone { Id = "btn_settings", Bounds = setRect });
                     }
 
@@ -3072,9 +3257,9 @@ namespace LiquidGlassWidget
         private void RenderFirstLaunchTutorial(Graphics g, List<HitZone> zones, float x, float y, float w, float h, float dt, float t)
         {
             string[] titles = new string[] {
-                "WELCOME TO BIRTHLY",
-                "ADD PEOPLE & SWITCH VIEWS",
-                "CUSTOMIZE, LAYERS & BACKUPS"
+                L("WELCOME TO BIRTHLY"),
+                L("ADD PEOPLE & SWITCH VIEWS"),
+                L("CUSTOMIZE, LAYERS & BACKUPS")
             };
             string[] bodies = new string[] {
                 "DRAG THE TOP-LEFT  :::  GRIP TO MOVE BIRTHLY ANYWHERE ON YOUR DESKTOP.\nRIGHT-CLICK ANYWHERE FOR QUICK ACTIONS.",
@@ -3135,8 +3320,8 @@ namespace LiquidGlassWidget
             float btnY = boxRect.Bottom - 46f;
             RectangleF skipBtn = new RectangleF(boxRect.X + 22f, btnY, 96f, 30f);
             RectangleF nextBtn = new RectangleF(boxRect.Right - 22f - 134f, btnY, 134f, 30f);
-            DrawAnimatedGlassButton(g, skipBtn, step == 0 ? "SKIP" : "BACK", false, GetHoverProgress("tut_left", dt), t);
-            DrawAnimatedGlassButton(g, nextBtn, step == titles.Length - 1 ? "GET STARTED" : "NEXT  ›", true, GetHoverProgress("tut_next", dt), t);
+            DrawAnimatedGlassButton(g, skipBtn, step == 0 ? L("SKIP") : L("BACK"), false, GetHoverProgress("tut_left", dt), t);
+            DrawAnimatedGlassButton(g, nextBtn, step == titles.Length - 1 ? L("GET STARTED") : L("NEXT  ›"), true, GetHoverProgress("tut_next", dt), t);
             g.Restore(tutSt);
             zones.Add(new HitZone { Id = "tut_left", Bounds = skipBtn });
             zones.Add(new HitZone { Id = "tut_next", Bounds = nextBtn });
@@ -3146,10 +3331,10 @@ namespace LiquidGlassWidget
         {
             string[] ids = new string[] { "ctx_add", "ctx_settings", "ctx_toggle_cal", "ctx_exit" };
             string[] labels = new string[] {
-                "+ ADD PERSON",
-                currentView == ActiveView.Settings ? "BACK TO HOME" : "SETTINGS",
-                isCalendarView ? "SWITCH TO LIST" : "SWITCH TO CALENDAR",
-                "CLOSE WIDGET"
+                L("+ ADD PERSON"),
+                currentView == ActiveView.Settings ? L("BACK TO HOME") : "SETTINGS",
+                isCalendarView ? L("SWITCH TO LIST") : L("SWITCH TO CALENDAR"),
+                L("CLOSE WIDGET")
             };
 
             float menuW = 186f;
@@ -3278,7 +3463,7 @@ namespace LiquidGlassWidget
             Font subF = GetCachedFont(11.5f, FontStyle.Regular);
             string promptTitle = "DELETE " + (targetPerson.Name ?? "PROFILE").ToUpper() + "?";
             DrawAdaptiveString(g, promptTitle, titleF, new RectangleF(boxRect.X + 16f, boxRect.Y + 84f, boxW - 32f, 24f), sfCenter, 250);
-            DrawAdaptiveString(g, "ARE YOU SURE YOU WANT TO REMOVE THIS BIRTHDAY?", subF, new RectangleF(boxRect.X + 16f, boxRect.Y + 112f, boxW - 32f, 20f), sfCenter, 185);
+            DrawAdaptiveString(g, L("ARE YOU SURE YOU WANT TO REMOVE THIS BIRTHDAY?"), subF, new RectangleF(boxRect.X + 16f, boxRect.Y + 112f, boxW - 32f, 20f), sfCenter, 185);
 
             float btnW = 132f;
             float btnH = 34f;
@@ -3289,8 +3474,8 @@ namespace LiquidGlassWidget
             RectangleF keepRect = new RectangleF(startX, btnY, btnW, btnH);
             RectangleF confirmDelRect = new RectangleF(startX + btnW + gap, btnY, btnW, btnH);
 
-            DrawAnimatedGlassButton(g, keepRect, "CANCEL", false, GetHoverProgress("confirm_del_no", dt), t);
-            DrawAnimatedGlassButton(g, confirmDelRect, "YES, DELETE", true, GetHoverProgress("confirm_del_yes", dt), t);
+            DrawAnimatedGlassButton(g, keepRect, L("CANCEL"), false, GetHoverProgress("confirm_del_no", dt), t);
+            DrawAnimatedGlassButton(g, confirmDelRect, L("YES, DELETE"), true, GetHoverProgress("confirm_del_yes", dt), t);
 
             g.Restore(st);
 
@@ -3314,8 +3499,8 @@ namespace LiquidGlassWidget
                 DrawAnimatedGlassCard(g, emptyRect, 22f, false, 0f, t, 0f);
                 Font f1 = GetCachedFont(16f, FontStyle.Bold);
                 Font f2 = GetCachedFont(12.5f, FontStyle.Regular);
-                DrawAdaptiveString(g, "NO BIRTHDAYS ADDED", f1, new RectangleF(x, y + h * 0.38f, w, 26f), sfCenter, 235);
-                DrawAdaptiveString(g, "CLICK '+ ADD' IN THE TOP RIGHT TO ADD A PERSON", f2, new RectangleF(x, y + h * 0.48f, w, 22f), sfCenter, 155);
+                DrawAdaptiveString(g, L("NO BIRTHDAYS ADDED"), f1, new RectangleF(x, y + h * 0.38f, w, 26f), sfCenter, 235);
+                DrawAdaptiveString(g, L("CLICK '+ ADD' IN THE TOP RIGHT TO ADD A PERSON"), f2, new RectangleF(x, y + h * 0.48f, w, 22f), sfCenter, 155);
                 return;
             }
 
@@ -3484,7 +3669,7 @@ namespace LiquidGlassWidget
                 DrawAdaptiveString(g, nextNameSafe, nameFont, new RectangleF(infoX, heroRect.Y + (tightHoriz ? 10f : 14f), infoMaxW, 22f), sfNearCenter, 248);
                 int age = nextPerson.GetCurrentAge(now);
                 int turnAge = nextPerson.GetTurningAge(now);
-                string dateLine = statusLabel + "  •  " + nextDate.ToString("dd MMM").ToUpper();
+                string dateLine = statusLabel + "  •  " + nextDate.ToString("dd MMM", GetActiveCultureInfo()).ToUpper();
                 DrawAdaptiveString(g, dateLine, dateFont, new RectangleF(infoX, heroRect.Y + (tightHoriz ? 32f : 38f), infoMaxW, 16f), sfNearCenter, 175);
                 if (config.ShowAgeBadge && nextPerson.BirthYear >= 1900)
                 {
@@ -3494,10 +3679,10 @@ namespace LiquidGlassWidget
                     DrawAdaptiveString(g, ageLine, ageBigF, new RectangleF(infoX, heroRect.Y + (tightHoriz ? 50f : 58f), infoMaxW, 19f), sfNearCenter, 238);
                 }
 
-                DrawMinimalCountdownTile(g, new RectangleF(tileStartX, tileY, tileW, tileH), dStr, "DAYS", 0f, t);
-                DrawMinimalCountdownTile(g, new RectangleF(tileStartX + (tileW + tileGap), tileY, tileW, tileH), hStr, "HRS", 0f, t + 0.5f);
-                DrawMinimalCountdownTile(g, new RectangleF(tileStartX + (tileW + tileGap) * 2f, tileY, tileW, tileH), mStr, "MIN", 0f, t + 1.0f);
-                DrawMinimalCountdownTile(g, new RectangleF(tileStartX + (tileW + tileGap) * 3f, tileY, tileW, tileH), sStr, "SEC", secPulse, t + 1.5f);
+                DrawMinimalCountdownTile(g, new RectangleF(tileStartX, tileY, tileW, tileH), dStr, L("DAYS"), 0f, t);
+                DrawMinimalCountdownTile(g, new RectangleF(tileStartX + (tileW + tileGap), tileY, tileW, tileH), hStr, L("HRS"), 0f, t + 0.5f);
+                DrawMinimalCountdownTile(g, new RectangleF(tileStartX + (tileW + tileGap) * 2f, tileY, tileW, tileH), mStr, L("MIN"), 0f, t + 1.0f);
+                DrawMinimalCountdownTile(g, new RectangleF(tileStartX + (tileW + tileGap) * 3f, tileY, tileW, tileH), sStr, L("SEC"), secPulse, t + 1.5f);
 
                 RectangleF wishBtn = new RectangleF(wishX, heroRect.Y + (heroRect.Height - 28f) * 0.5f, wishW, 28f);
                 RectangleF editBtn = new RectangleF(editX, heroRect.Y + (heroRect.Height - 28f) * 0.5f, editW, 28f);
@@ -3543,7 +3728,7 @@ namespace LiquidGlassWidget
                 Font dateFont = GetCachedFont(11.5f, FontStyle.Regular);
                 DrawAdaptiveString(g, nextNameSafe, nameFont, new RectangleF(heroRect.X + 12f, nameY, heroW - 24f, 25f), sfCenter, 248);
 
-                string dateLine = nextDate.ToString("ddd, dd MMMM").ToUpper();
+                string dateLine = nextDate.ToString("ddd, dd MMMM", GetActiveCultureInfo()).ToUpper();
                 DrawAdaptiveString(g, dateLine, dateFont, new RectangleF(heroRect.X + 12f, nameY + 25f, heroW - 24f, 18f), sfCenter, 180);
 
                 float tileGap = 6f;
@@ -3553,10 +3738,10 @@ namespace LiquidGlassWidget
                 float startTileX = heroRect.X + (heroW - totalTilesW) / 2f;
                 float tileY = nameY + (compactH ? 47f : 52f);
 
-                DrawMinimalCountdownTile(g, new RectangleF(startTileX, tileY, tileW, tileH), dStr, "DAYS", 0f, t);
-                DrawMinimalCountdownTile(g, new RectangleF(startTileX + (tileW + tileGap), tileY, tileW, tileH), hStr, "HRS", 0f, t + 0.5f);
-                DrawMinimalCountdownTile(g, new RectangleF(startTileX + (tileW + tileGap) * 2f, tileY, tileW, tileH), mStr, "MIN", 0f, t + 1.0f);
-                DrawMinimalCountdownTile(g, new RectangleF(startTileX + (tileW + tileGap) * 3f, tileY, tileW, tileH), sStr, "SEC", secPulse, t + 1.5f);
+                DrawMinimalCountdownTile(g, new RectangleF(startTileX, tileY, tileW, tileH), dStr, L("DAYS"), 0f, t);
+                DrawMinimalCountdownTile(g, new RectangleF(startTileX + (tileW + tileGap), tileY, tileW, tileH), hStr, L("HRS"), 0f, t + 0.5f);
+                DrawMinimalCountdownTile(g, new RectangleF(startTileX + (tileW + tileGap) * 2f, tileY, tileW, tileH), mStr, L("MIN"), 0f, t + 1.0f);
+                DrawMinimalCountdownTile(g, new RectangleF(startTileX + (tileW + tileGap) * 3f, tileY, tileW, tileH), sStr, L("SEC"), secPulse, t + 1.5f);
 
                 // ── PROMINENT BIG AGE DISPLAY (at the exact place of the old note display below DAYS / HRS / MIN / SEC!) ──
                 float ageBoxTop = tileY + tileH + (compactH ? 7f : 10f);
@@ -3576,7 +3761,7 @@ namespace LiquidGlassWidget
                     {
                         bigAgeTxt = nextDays == 0
                             ? string.Format("★  TURNS {0} TODAY!  ★", turnAge)
-                            : string.Format("AGE {0}   •   TURNS {1}", curAge, turnAge);
+                            : string.Format("{0} {1}   •   {2} {3}", L("AGE"), curAge, L("TURNS"), turnAge);
                         int bm = ClampInt(nextPerson.Month, 1, 12);
                         int bd = ClampInt(nextPerson.Day, 1, DateTime.DaysInMonth(nextPerson.BirthYear, bm));
                         int daysLived = Math.Max(0, (int)(now.Date - new DateTime(nextPerson.BirthYear, bm, bd)).TotalDays);
@@ -3585,7 +3770,7 @@ namespace LiquidGlassWidget
                             Font bigAgeF = GetCachedFont(compactH ? 11.5f : 12.5f, FontStyle.Bold);
                             Font livedF = GetCachedFont(compactH ? 10.5f : 11.5f, FontStyle.Bold);
                             DrawAdaptiveString(g, bigAgeTxt, bigAgeF, new RectangleF(ageCardRect.X, ageCardRect.Y + 4f, ageCardRect.Width, pillH * 0.46f), sfCenter, 248);
-                            DrawAdaptiveString(g, string.Format("{0:N0} DAYS LIVED", daysLived), livedF, new RectangleF(ageCardRect.X, ageCardRect.Y + pillH * 0.48f, ageCardRect.Width, pillH * 0.46f), sfCenter, 232);
+                            DrawAdaptiveString(g, string.Format("{0:N0} {1}", daysLived, L("DAYS LIVED")), livedF, new RectangleF(ageCardRect.X, ageCardRect.Y + pillH * 0.48f, ageCardRect.Width, pillH * 0.46f), sfCenter, 232);
                         }
                         else
                         {
@@ -3595,7 +3780,7 @@ namespace LiquidGlassWidget
                     }
                     else
                     {
-                        bigAgeTxt = nextDays == 0 ? "★  BIRTHDAY TODAY!  ★" : "ADD BIRTH YEAR FOR AGE";
+                        bigAgeTxt = nextDays == 0 ? "★  BIRTHDAY TODAY!  ★" : L("ADD BIRTH YEAR FOR AGE");
                         Font bigAgeF = GetCachedFont(compactH ? 12.5f : 13.5f, FontStyle.Bold);
                         DrawAdaptiveString(g, bigAgeTxt, bigAgeF, ageCardRect, sfCenter, 165);
                     }
@@ -3674,8 +3859,8 @@ namespace LiquidGlassWidget
             float swHalf = (viewToggleW - 4f) * 0.5f;
             RectangleF listSwRect = new RectangleF(swX, rightY, swHalf, 28f);
             RectangleF calSwRect = new RectangleF(swX + swHalf + 4f, rightY, swHalf, 28f);
-            DrawAnimatedGlassButton(g, listSwRect, "LIST", !isCalendarView, GetHoverProgress("view_list", dt), t);
-            DrawAnimatedGlassButton(g, calSwRect, "CAL", isCalendarView, GetHoverProgress("view_cal", dt), t);
+            DrawAnimatedGlassButton(g, listSwRect, L("LIST"), !isCalendarView, GetHoverProgress("view_list", dt), t);
+            DrawAnimatedGlassButton(g, calSwRect, L("CAL"), isCalendarView, GetHoverProgress("view_cal", dt), t);
             zones.Add(new HitZone { Id = "view_list", Bounds = listSwRect });
             zones.Add(new HitZone { Id = "view_cal", Bounds = calSwRect });
 
@@ -3829,11 +4014,11 @@ namespace LiquidGlassWidget
                             else if (lived >= 0)
                                 subInfo = string.Format("{0:N0} DAYS LIVED", lived);
                             else
-                                subInfo = "ADD BIRTH YEAR FOR DAY MILESTONES";
+                                subInfo = L("ADD BIRTH YEAR FOR DAY MILESTONES");
                         }
                         else
                         {
-                            subInfo = nbDate.ToString("dd MMM").ToUpper();
+                            subInfo = nbDate.ToString("dd MMM", GetActiveCultureInfo()).ToUpper();
                             int cAge = p.GetCurrentAge(now);
                             int lived = p.GetDaysLived(now);
                             if (config.ShowAgeBadge && p.BirthYear >= 1900)
@@ -3883,11 +4068,11 @@ namespace LiquidGlassWidget
                     "Milestones"
                 };
                 string[] optLabels = new string[] {
-                    "NEAREST FIRST", "FURTHEST FIRST",
-                    "THIS MONTH ONLY", "BY MONTH (JAN–DEC)",
-                    "NAME A–Z", "NAME Z–A",
-                    "AGE (OLDEST)", "AGE (YOUNGEST)",
-                    "SPECIAL MILESTONES (10K / 222D)"
+                    L("NEAREST FIRST"), L("FURTHEST FIRST"),
+                    L("THIS MONTH ONLY"), L("BY MONTH (JAN–DEC)"),
+                    L("NAME A–Z"), L("NAME Z–A"),
+                    L("AGE (OLDEST)"), L("AGE (YOUNGEST)"),
+                    L("SPECIAL MILESTONES (10K / 222D)")
                 };
 
                 float ddW = Math.Min(308f, rightW);
@@ -4044,7 +4229,7 @@ namespace LiquidGlassWidget
             DateTime firstOfMonth = new DateTime(calYear, calMonth, 1);
             Font mf = GetCachedFont(ultraCompactCal ? 11f : (compactCal ? 12f : 13.5f), FontStyle.Bold);
             RectangleF titleR = new RectangleF(prevBtn.Right + 6f, navY, Math.Max(40f, todayBtn.X - prevBtn.Right - 12f), navH);
-            DrawAdaptiveString(g, firstOfMonth.ToString("MMMM yyyy").ToUpper(), mf, titleR, sfCenter, 245);
+            DrawAdaptiveString(g, firstOfMonth.ToString("MMMM yyyy", GetActiveCultureInfo()).ToUpper(), mf, titleR, sfCenter, 245);
 
             string[] dow = new string[] { "MO", "TU", "WE", "TH", "FR", "SA", "SU" };
             float gridX = x + pad;
@@ -4150,7 +4335,7 @@ namespace LiquidGlassWidget
                 float rightCtrlW = 136f;
                 RectangleF editBtn = new RectangleF(stripRect.Right - 64f, btnY, 58f, btnH);
                 RectangleF viewBtn = new RectangleF(editBtn.X - 64f, btnY, 58f, btnH);
-                DrawAnimatedGlassButton(g, viewBtn, "VIEW", false, GetHoverProgress("row_" + activeP.Id, dt), t);
+                DrawAnimatedGlassButton(g, viewBtn, L("VIEW"), false, GetHoverProgress("row_" + activeP.Id, dt), t);
                 DrawAnimatedGlassButton(g, editBtn, L("EDIT"), false, GetHoverProgress("btn_hero_edit", dt), t);
                 zones.Add(new HitZone { Id = "row_" + activeP.Id, Bounds = viewBtn, Person = activeP });
                 zones.Add(new HitZone { Id = "btn_hero_edit", Bounds = editBtn, Person = activeP });
@@ -4167,8 +4352,8 @@ namespace LiquidGlassWidget
                 }
 
                 string labelText = dayPeople.Count > 1
-                    ? string.Format("{0:00} {1}:  {2}  ({3}/{4})", calSelectedDay, firstOfMonth.ToString("MMM").ToUpper(), (activeP.Name ?? "").ToUpper(), calSharedPersonIndex + 1, dayPeople.Count)
-                    : string.Format("{0:00} {1}:  {2}", calSelectedDay, firstOfMonth.ToString("MMM").ToUpper(), (activeP.Name ?? "").ToUpper());
+                    ? string.Format("{0:00} {1}:  {2}  ({3}/{4})", calSelectedDay, firstOfMonth.ToString("MMM", GetActiveCultureInfo()).ToUpper(), (activeP.Name ?? "").ToUpper(), calSharedPersonIndex + 1, dayPeople.Count)
+                    : string.Format("{0:00} {1}:  {2}", calSelectedDay, firstOfMonth.ToString("MMM", GetActiveCultureInfo()).ToUpper(), (activeP.Name ?? "").ToUpper());
 
                 Font sf = GetCachedFont(compactCal ? 10.5f : 12f, FontStyle.Bold);
                 DrawAdaptiveString(g, labelText, sf, new RectangleF(stripRect.X + 12f, stripRect.Y, Math.Max(40f, stripRect.Width - rightCtrlW - 18f), stripRect.Height), sfNearCenter, 248);
@@ -4180,7 +4365,7 @@ namespace LiquidGlassWidget
                 zones.Add(new HitZone { Id = "cal_quick_add", Bounds = quickAddBtn });
 
                 Font sf = GetCachedFont(compactCal ? 10f : 11f, FontStyle.Regular);
-                DrawAdaptiveString(g, string.Format("{0:00} {1}  •  NO BIRTHDAYS ON THIS DAY", calSelectedDay, firstOfMonth.ToString("MMM").ToUpper()),
+                DrawAdaptiveString(g, string.Format("{0:00} {1}  •  NO BIRTHDAYS ON THIS DAY", calSelectedDay, firstOfMonth.ToString("MMM", GetActiveCultureInfo()).ToUpper()),
                     sf, new RectangleF(stripRect.X + 12f, stripRect.Y, Math.Max(40f, stripRect.Width - 90f), stripRect.Height), sfNearCenter, 155);
             }
         }
@@ -4202,8 +4387,8 @@ namespace LiquidGlassWidget
             using (SolidBrush whiteBr = new SolidBrush(GetTextColor(245)))
             using (SolidBrush subBr = new SolidBrush(GetTextColor(155)))
             {
-                g.DrawString(isNewPerson ? "ADD PERSON" : "EDIT PERSON", secFont, whiteBr, padX, curY);
-                g.DrawString("CLICK ANY FIELD BELOW AND TYPE ON YOUR KEYBOARD", lblFont, subBr, padX + 135f, curY + 2f);
+                g.DrawString(isNewPerson ? L("ADD PERSON") : L("EDIT PERSON"), secFont, whiteBr, padX, curY);
+                g.DrawString(L("CLICK ANY FIELD BELOW AND TYPE ON YOUR KEYBOARD"), lblFont, subBr, padX + 135f, curY + 2f);
                 curY += (compact ? 30f : 36f);
 
                 float avPreviewSpace = 104f;
@@ -4212,11 +4397,11 @@ namespace LiquidGlassWidget
                 float yearW = fieldsW - nameW - 14f;
 
                 g.DrawString("NAME", lblFont, subBr, padX, curY);
-                g.DrawString("BIRTH YEAR (OPTIONAL)", lblFont, subBr, padX + nameW + 14f, curY);
+                g.DrawString(L("BIRTH YEAR (OPTIONAL)"), lblFont, subBr, padX + nameW + 14f, curY);
                 curY += 20f;
 
                 RectangleF nameBox = new RectangleF(padX, curY, nameW, 34f);
-                DrawInGlassTextBox(g, nameBox, editName, "Type name...", activeTextField == "name", GetHoverProgress("field_name", dt), t);
+                DrawInGlassTextBox(g, nameBox, editName, L("Type name..."), activeTextField == "name", GetHoverProgress("field_name", dt), t);
                 zones.Add(new HitZone { Id = "field_name", Bounds = nameBox });
 
                 RectangleF yearBox = new RectangleF(padX + nameW + 14f, curY, yearW, 34f);
@@ -4263,8 +4448,8 @@ namespace LiquidGlassWidget
                 }
                 curY += (compact ? 34f : 40f);
 
-                g.DrawString("DAY (CLICK TO TYPE)", lblFont, subBr, padX, curY);
-                g.DrawString("NOTE / GIFT IDEA (OPTIONAL)", lblFont, subBr, padX + 170f, curY);
+                g.DrawString(L("DAY (CLICK TO TYPE)"), lblFont, subBr, padX, curY);
+                g.DrawString(L("NOTE / GIFT IDEA (OPTIONAL)"), lblFont, subBr, padX + 170f, curY);
                 curY += 20f;
 
                 RectangleF dayMinus = new RectangleF(padX, curY, 34f, 32f);
@@ -4278,11 +4463,11 @@ namespace LiquidGlassWidget
                 zones.Add(new HitZone { Id = "day_plus", Bounds = dayPlus });
 
                 RectangleF notesBox = new RectangleF(padX + 170f, curY, innerW - 170f, 32f);
-                DrawInGlassTextBox(g, notesBox, editNotes, "Optional note...", activeTextField == "notes", GetHoverProgress("field_notes", dt), t);
+                DrawInGlassTextBox(g, notesBox, editNotes, L("Optional note..."), activeTextField == "notes", GetHoverProgress("field_notes", dt), t);
                 zones.Add(new HitZone { Id = "field_notes", Bounds = notesBox });
                 curY += rowStep;
 
-                g.DrawString("AVATAR STYLE", lblFont, subBr, padX, curY);
+                g.DrawString(L("AVATAR STYLE"), lblFont, subBr, padX, curY);
                 curY += 20f;
 
                 string[] icTypes = new string[] { "initials", "user", "star", "heart", "gift" };
@@ -4303,14 +4488,14 @@ namespace LiquidGlassWidget
 
                 RectangleF upImgRect = new RectangleF(ix + 2f, curY, uploadBtnW, 28f);
                 bool hasCustomImg = editIconType == "image" && !string.IsNullOrEmpty(editImagePath);
-                DrawAnimatedGlassButton(g, upImgRect, hasCustomImg ? "IMAGE SELECTED" : "CHOOSE IMAGE...", hasCustomImg, GetHoverProgress("btn_pick_img", dt), t);
+                DrawAnimatedGlassButton(g, upImgRect, hasCustomImg ? L("IMAGE SELECTED") : L("CHOOSE IMAGE..."), hasCustomImg, GetHoverProgress("btn_pick_img", dt), t);
                 zones.Add(new HitZone { Id = "btn_pick_img", Bounds = upImgRect });
 
                 float botY = y + h - 42f;
                 RectangleF cancelBtn = new RectangleF(padX, botY, 110f, 30f);
                 RectangleF saveBtn   = new RectangleF(x + w - 24f - 148f, botY, 148f, 30f);
                 DrawAnimatedGlassButton(g, cancelBtn, L("CANCEL"), false, GetHoverProgress("btn_cancel_edit", dt), t);
-                DrawAnimatedGlassButton(g, saveBtn, isNewPerson ? "ADD PERSON" : L("SAVE CHANGES"), true, GetHoverProgress("btn_save_edit", dt), t);
+                DrawAnimatedGlassButton(g, saveBtn, isNewPerson ? L("ADD PERSON") : L("SAVE CHANGES"), true, GetHoverProgress("btn_save_edit", dt), t);
                 if (!string.IsNullOrEmpty(editorErrorMsg))
                 {
                     RectangleF errRect = new RectangleF(cancelBtn.Right + 10f, botY, Math.Max(40f, saveBtn.X - cancelBtn.Right - 20f), 30f);
@@ -4445,8 +4630,8 @@ namespace LiquidGlassWidget
                     cy += 38f;
 
                     // ROW 4: Dedicated SOUND section (left) & CURSOR section (right)
-                    g.DrawString("CLICK SOUND:", lblFont, subBr, contentX, cy);
-                    g.DrawString("CURSOR STYLE:", lblFont, subBr, contentX + halfW + 12f, cy);
+                    g.DrawString(L("CLICK SOUND:"), lblFont, subBr, contentX, cy);
+                    g.DrawString(L("CURSOR STYLE:"), lblFont, subBr, contentX + halfW + 12f, cy);
                     cy += 17f;
                     float sndToggleW = halfW * 0.58f;
                     float wavBtnW = halfW - sndToggleW - 6f;
@@ -4474,8 +4659,8 @@ namespace LiquidGlassWidget
                     // ROW 5: Replay Tutorial + Reset Everything (opens confirmation modal like Delete Person!)
                     RectangleF tutBtn = new RectangleF(contentX, cy, halfW, 28f);
                     RectangleF rstBtn = new RectangleF(contentX + halfW + 12f, cy, halfW, 28f);
-                    DrawAnimatedGlassButton(g, tutBtn, "REPLAY TUTORIAL", false, GetHoverProgress("set_replay_tutorial", dt), t);
-                    DrawAnimatedGlassButton(g, rstBtn, "RESET EVERYTHING", false, GetHoverProgress("set_reset_all", dt), t);
+                    DrawAnimatedGlassButton(g, tutBtn, L("REPLAY TUTORIAL"), false, GetHoverProgress("set_replay_tutorial", dt), t);
+                    DrawAnimatedGlassButton(g, rstBtn, L("RESET EVERYTHING"), false, GetHoverProgress("set_reset_all", dt), t);
                     zones.Add(new HitZone { Id = "set_replay_tutorial", Bounds = tutBtn });
                     zones.Add(new HitZone { Id = "set_reset_all", Bounds = rstBtn });
 
@@ -4505,7 +4690,7 @@ namespace LiquidGlassWidget
                         }
                         DrawAnimatedGlassCard(g, ddMenu, IsBasicThemeEnabled() ? 8f : 14f, false, 0.35f, t, 0f);
                         RectangleF lSearchR = new RectangleF(ddMenu.X + 6f, ddMenu.Y + 6f, ddMenu.Width - 12f, 24f);
-                        DrawInGlassSearchBox(g, lSearchR, langSearchQuery, isLangSearchFocused, GetHoverProgress("btn_lang_search", dt), t, "SEARCH LANGUAGE...");
+                        DrawInGlassSearchBox(g, lSearchR, langSearchQuery, isLangSearchFocused, GetHoverProgress("btn_lang_search", dt), t, L("SEARCH LANGUAGE..."));
                         zones.Add(new HitZone { Id = "btn_lang_search", Bounds = lSearchR });
 
                         for (int mi = 0; mi < showCnt; mi++)
@@ -4536,8 +4721,8 @@ namespace LiquidGlassWidget
                             using (SolidBrush mb = new SolidBrush(mBg)) g.FillPath(mb, mp);
                             using (Pen mpen = new Pen(GetThemeRimColor(165), 1.3f)) g.DrawPath(mpen, mp);
                         }
-                        DrawAdaptiveString(g, "RESET EVERYTHING?", GetCachedFont(14f, FontStyle.Bold), new RectangleF(mr.X + 16f, mr.Y + 18f, mr.Width - 32f, 26f), sfCenter, 250);
-                        DrawAdaptiveString(g, "All people & settings will be reset to default.", GetCachedFont(10.5f, FontStyle.Regular), new RectangleF(mr.X + 16f, mr.Y + 48f, mr.Width - 32f, 36f), sfCenter, 190);
+                        DrawAdaptiveString(g, L("RESET EVERYTHING?"), GetCachedFont(14f, FontStyle.Bold), new RectangleF(mr.X + 16f, mr.Y + 18f, mr.Width - 32f, 26f), sfCenter, 250);
+                        DrawAdaptiveString(g, L("All people & settings will be reset to default."), GetCachedFont(10.5f, FontStyle.Regular), new RectangleF(mr.X + 16f, mr.Y + 48f, mr.Width - 32f, 36f), sfCenter, 190);
                         float mbW = (mr.Width - 42f) * 0.5f;
                         RectangleF mCancel = new RectangleF(mr.X + 16f, mr.Bottom - 44f, mbW, 30f);
                         RectangleF mConfirm = new RectangleF(mCancel.Right + 10f, mr.Bottom - 44f, mbW, 30f);
@@ -4554,23 +4739,23 @@ namespace LiquidGlassWidget
                     float prevW = contentW - leftW - 14f;
                     float cy = contentTop;
 
-                    g.DrawString("APPEARANCE & THEME", secFont, whiteBr, contentX, cy);
+                    g.DrawString(L("APPEARANCE & THEME"), secFont, whiteBr, contentX, cy);
                     cy += 22f;
 
                     // PROGRAM THEME (LIQUID GLASS vs BASIC PROGRAM THEME — automatically pairs with Melon vs Segoe font!)
-                    g.DrawString("PROGRAM THEME (AUTO FONT):", lblFont, subBr, contentX, cy);
+                    g.DrawString(L("PROGRAM THEME (AUTO FONT):"), lblFont, subBr, contentX, cy);
                     cy += 16f;
                     float ptHalf = (leftW - 6f) * 0.5f;
                     RectangleF glassThemeBtn = new RectangleF(contentX, cy, ptHalf, 26f);
                     RectangleF basicThemeBtn = new RectangleF(contentX + ptHalf + 6f, cy, ptHalf, 26f);
-                    DrawAnimatedGlassButton(g, glassThemeBtn, "LIQUID GLASS", !stagedBasicTheme, GetHoverProgress("app_theme_glass", dt), t);
-                    DrawAnimatedGlassButton(g, basicThemeBtn, "BASIC THEME", stagedBasicTheme, GetHoverProgress("app_theme_basic", dt), t);
+                    DrawAnimatedGlassButton(g, glassThemeBtn, L("LIQUID GLASS"), !stagedBasicTheme, GetHoverProgress("app_theme_glass", dt), t);
+                    DrawAnimatedGlassButton(g, basicThemeBtn, L("BASIC THEME"), stagedBasicTheme, GetHoverProgress("app_theme_basic", dt), t);
                     zones.Add(new HitZone { Id = "app_theme_glass", Bounds = glassThemeBtn });
                     zones.Add(new HitZone { Id = "app_theme_basic", Bounds = basicThemeBtn });
                     cy += 32f;
 
                     // TINTED COLOR VARIANTS
-                    g.DrawString(stagedBasicTheme ? "ACCENT TINT VARIANT:" : "TINTED GLASS VARIANT:", lblFont, subBr, contentX, cy);
+                    g.DrawString(stagedBasicTheme ? L("ACCENT TINT VARIANT:") : L("TINTED GLASS VARIANT:"), lblFont, subBr, contentX, cy);
                     cy += 16f;
                     string[] tints = new string[] { "Clear", "Ice", "Rose", "Mint", "Amber", "Violet", "Obsidian" };
                     float tGap = 5f;
@@ -4588,7 +4773,7 @@ namespace LiquidGlassWidget
                     cy += 56f;
 
                     // FONT FAMILY
-                    g.DrawString("FONT FAMILY:", lblFont, subBr, contentX, cy);
+                    g.DrawString(L("FONT FAMILY:"), lblFont, subBr, contentX, cy);
                     cy += 16f;
                     string[] fonts = new string[] { "Melon Squishy", "Segoe UI", "Bahnschrift", "Consolas", "Georgia" };
                     string[] fontLabels = new string[] { "MELON", "SEGOE", "BAHN", "MONO", "SERIF" };
@@ -4606,18 +4791,18 @@ namespace LiquidGlassWidget
                     cy += 56f;
 
                     // GLASS / BASIC CONTRAST (LIGHT vs DARK)
-                    g.DrawString("SURFACE MODE (LIGHT / DARK):", lblFont, subBr, contentX, cy);
+                    g.DrawString(L("SURFACE MODE (LIGHT / DARK):"), lblFont, subBr, contentX, cy);
                     cy += 16f;
                     float tmHalf = (leftW - 6f) * 0.5f;
                     RectangleF lightBtn = new RectangleF(contentX, cy, tmHalf, 26f);
                     RectangleF darkBtn  = new RectangleF(contentX + tmHalf + 6f, cy, tmHalf, 26f);
-                    DrawAnimatedGlassButton(g, lightBtn, stagedBasicTheme ? "LIGHT BASIC" : "LIGHT GLASS", !stagedDarkMode, GetHoverProgress("app_mode_light", dt), t);
-                    DrawAnimatedGlassButton(g, darkBtn,  stagedBasicTheme ? "DARK BASIC" : "DARK GLASS", stagedDarkMode, GetHoverProgress("app_mode_dark", dt), t);
+                    DrawAnimatedGlassButton(g, lightBtn, stagedBasicTheme ? L("LIGHT BASIC") : L("LIGHT GLASS"), !stagedDarkMode, GetHoverProgress("app_mode_light", dt), t);
+                    DrawAnimatedGlassButton(g, darkBtn,  stagedBasicTheme ? L("DARK BASIC") : L("DARK GLASS"), stagedDarkMode, GetHoverProgress("app_mode_dark", dt), t);
                     zones.Add(new HitZone { Id = "app_mode_light", Bounds = lightBtn });
                     zones.Add(new HitZone { Id = "app_mode_dark", Bounds = darkBtn });
 
                     // ── LIVE MINI-PREVIEW & DRAGGABLE LAYOUT EDITOR ──
-                    g.DrawString("LIVE PREVIEW (DRAG HERO)", lblFont, subBr, prevX, contentTop + 4f);
+                    g.DrawString(L("LIVE PREVIEW (DRAG HERO)"), lblFont, subBr, prevX, contentTop + 4f);
                     float prevBoxH = Math.Min(172f, contentH - 64f);
                     RectangleF prevBox = new RectangleF(prevX, contentTop + 24f, prevW, prevBoxH);
                     lastPreviewBoxRect = prevBox;
@@ -4643,21 +4828,21 @@ namespace LiquidGlassWidget
                 {
                     RefreshRunningProcesses(false);
                     float cy = contentTop;
-                    g.DrawString("WINDOW LAYER SYSTEM", secFont, whiteBr, contentX, cy);
+                    g.DrawString(L("WINDOW LAYER SYSTEM"), secFont, whiteBr, contentX, cy);
                     cy += 24f;
 
                     // ABOVE vs BELOW mode switch
                     float halfW = (contentW - 8f) * 0.5f;
                     RectangleF modeAbove = new RectangleF(contentX, cy, halfW, 28f);
                     RectangleF modeBelow = new RectangleF(contentX + halfW + 8f, cy, halfW, 28f);
-                    DrawAnimatedGlassButton(g, modeAbove, "STAY ABOVE SELECTED", stagedLayerMode == "Above", GetHoverProgress("lay_mode_above", dt), t);
-                    DrawAnimatedGlassButton(g, modeBelow, "STAY BELOW SELECTED", stagedLayerMode == "Below", GetHoverProgress("lay_mode_below", dt), t);
+                    DrawAnimatedGlassButton(g, modeAbove, L("STAY ABOVE SELECTED"), stagedLayerMode == "Above", GetHoverProgress("lay_mode_above", dt), t);
+                    DrawAnimatedGlassButton(g, modeBelow, L("STAY BELOW SELECTED"), stagedLayerMode == "Below", GetHoverProgress("lay_mode_below", dt), t);
                     zones.Add(new HitZone { Id = "lay_mode_above", Bounds = modeAbove });
                     zones.Add(new HitZone { Id = "lay_mode_below", Bounds = modeBelow });
                     cy += 34f;
 
                     // QUICK LAYER TARGETS (NO DESKTOP ICONS, NO ALWAYS ON TOP)
-                    g.DrawString("QUICK TARGETS:", lblFont, subBr, contentX, cy);
+                    g.DrawString(L("QUICK TARGETS:"), lblFont, subBr, contentX, cy);
                     cy += 16f;
                     float bGap = 8f;
                     float bW = (contentW - bGap) * 0.5f;
@@ -4671,13 +4856,13 @@ namespace LiquidGlassWidget
                     cy += 34f;
 
                     // SEARCH RUNNING APPS / BROWSE .EXE
-                    g.DrawString("OPEN WINDOWS / .EXE (CLICK TO ADD):", lblFont, subBr, contentX, cy);
+                    g.DrawString(L("OPEN WINDOWS / .EXE (CLICK TO ADD):"), lblFont, subBr, contentX, cy);
                     cy += 16f;
                     float browseW = 114f;
                     RectangleF lSearchRect = new RectangleF(contentX, cy, contentW - browseW - 8f, 26f);
                     RectangleF browseBtn = new RectangleF(lSearchRect.Right + 8f, cy, browseW, 26f);
-                    DrawInGlassSearchBox(g, lSearchRect, layerSearchQuery, isLayerSearchFocused, GetHoverProgress("lay_search", dt), t, "SEARCH .EXE...");
-                    DrawAnimatedGlassButton(g, browseBtn, "+ BROWSE .EXE", false, GetHoverProgress("lay_browse_exe", dt), t);
+                    DrawInGlassSearchBox(g, lSearchRect, layerSearchQuery, isLayerSearchFocused, GetHoverProgress("lay_search", dt), t, L("SEARCH .EXE..."));
+                    DrawAnimatedGlassButton(g, browseBtn, L("+ BROWSE .EXE"), false, GetHoverProgress("lay_browse_exe", dt), t);
                     zones.Add(new HitZone { Id = "lay_search", Bounds = lSearchRect });
                     zones.Add(new HitZone { Id = "lay_browse_exe", Bounds = browseBtn });
                     cy += 32f;
@@ -4730,7 +4915,7 @@ namespace LiquidGlassWidget
 
                     // WINDOW SIZE: Toggle between Standard Presets & Custom Size (mutually greyed out!)
                     RectangleF customSzToggle = new RectangleF(contentX, cy, contentW * 0.44f, 26f);
-                    DrawGlassToggleSwitch(g, customSzToggle, stagedUseCustomSize ? "SIZE: CUSTOM" : "SIZE: STANDARD", stagedUseCustomSize, GetHoverProgress("set_toggle_customsz", dt));
+                    DrawGlassToggleSwitch(g, customSzToggle, stagedUseCustomSize ? L("SIZE: CUSTOM") : L("SIZE: STANDARD"), stagedUseCustomSize, GetHoverProgress("set_toggle_customsz", dt));
                     zones.Add(new HitZone { Id = "set_toggle_customsz", Bounds = customSzToggle });
 
                     // Custom W × H numeric inputs right beside the toggle (greyed out when Standard!)
@@ -4804,9 +4989,9 @@ namespace LiquidGlassWidget
                     }
                     cy += 36f;
 
-                    g.DrawString("LIQUID GLASS OPTICS:", lblFont, subBr, contentX, cy);
+                    g.DrawString(L("LIQUID GLASS OPTICS:"), lblFont, subBr, contentX, cy);
                     cy += 17f;
-                    string[] presetNames = new string[] { "BALANCED", "CRYSTAL LENS", "SOFT FROST" };
+                    string[] presetNames = new string[] { L("BALANCED"), L("CRYSTAL LENS"), L("SOFT FROST") };
                     float pGap = 8f;
                     float pBtnW = (contentW - pGap * 2f) / 3f;
                     for (int pIdx = 0; pIdx < presetNames.Length; pIdx++)
@@ -4820,7 +5005,7 @@ namespace LiquidGlassWidget
                 else if (currentSettingsCat == SettingsCategory.Backup)
                 {
                     float cy = contentTop;
-                    g.DrawString("BACKUP & RESTORE (SINGLE FILE)", secFont, whiteBr, contentX, cy);
+                    g.DrawString(L("BACKUP & RESTORE (SINGLE FILE)"), secFont, whiteBr, contentX, cy);
                     cy += 26f;
 
                     int totalPeople = config != null && config.People != null ? config.People.Count : 0;
@@ -4834,12 +5019,12 @@ namespace LiquidGlassWidget
                     cy += 34f;
 
                     RectangleF expBtn = new RectangleF(contentX, cy, contentW, 38f);
-                    DrawAnimatedGlassButton(g, expBtn, "EXPORT ALL DATA + IMAGES (.BIRTHLY)", true, GetHoverProgress("btn_export_backup", dt), t);
+                    DrawAnimatedGlassButton(g, expBtn, L("EXPORT ALL DATA + IMAGES (.BIRTHLY)"), true, GetHoverProgress("btn_export_backup", dt), t);
                     zones.Add(new HitZone { Id = "btn_export_backup", Bounds = expBtn });
                     cy += 48f;
 
                     RectangleF impBtn = new RectangleF(contentX, cy, contentW, 38f);
-                    DrawAnimatedGlassButton(g, impBtn, "IMPORT BACKUP FILE (.BIRTHLY)", false, GetHoverProgress("btn_import_backup", dt), t);
+                    DrawAnimatedGlassButton(g, impBtn, L("IMPORT BACKUP FILE (.BIRTHLY)"), false, GetHoverProgress("btn_import_backup", dt), t);
                     zones.Add(new HitZone { Id = "btn_import_backup", Bounds = impBtn });
                     cy += 50f;
 
@@ -5034,8 +5219,9 @@ namespace LiquidGlassWidget
         }
 
         // Sleek In-Glass Search Bar (or Crisp Flat Search Box in Basic Mode)
-        private void DrawInGlassSearchBox(Graphics g, RectangleF rect, string query, bool focused, float hoverLerp, float t, string placeholder = "SEARCH PEOPLE...")
+        private void DrawInGlassSearchBox(Graphics g, RectangleF rect, string query, bool focused, float hoverLerp, float t, string placeholder = null)
         {
+            if (placeholder == null) placeholder = L("SEARCH PEOPLE...");
             using (GraphicsPath path = CreateRoundRectPath(rect, IsBasicThemeEnabled() ? 6f : rect.Height * 0.48f))
             {
                 int fillA = (int)((focused ? 38 : 18) + hoverLerp * 18f);
@@ -5659,10 +5845,8 @@ namespace LiquidGlassWidget
                         if (staticBackdropStreak < 100) staticBackdropStreak++;
                     }
 
-                    // Adaptive ultra-low-CPU capture cadence (never stalls DWM or tanks game/video FPS!):
-                    // - Active video/changes behind glass: 30 Hz (33 ms)
-                    // - Static desktop / wallpaper: backs off to ~12 Hz (85 ms) with instant dirty-hash skip!
-                    double minFrameMs = (staticBackdropStreak >= 6 && !isDragging) ? 85.0 : 33.0;
+                    // Pace directly to configured Refresh Rate (e.g. 120 Hz = 8.3ms, 165 Hz = 6ms) with 256-point dirty-hash skip when static!
+                    double minFrameMs = 1000.0 / Math.Max(30, GetEffectiveTargetHz());
                     double elapsed = capSw.Elapsed.TotalMilliseconds;
                     int sleepMs = (int)(minFrameMs - elapsed);
                     if (sleepMs >= 2) Thread.Sleep(sleepMs);
@@ -6056,8 +6240,8 @@ namespace LiquidGlassWidget
             if (!fullCapture && capturedLive)
             {
                 long hHash = 1469598103934665603L;
-                int stepX = Math.Max(1, roiW / 8);
-                int stepY = Math.Max(1, roiH / 8);
+                int stepX = Math.Max(1, roiW / 16);
+                int stepY = Math.Max(1, roiH / 16);
                 for (int sy = yStart + (stepY >> 1); sy < yEnd; sy += stepY)
                 {
                     int rowOff = sy * w;

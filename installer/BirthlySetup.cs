@@ -138,8 +138,284 @@ namespace BirthlyInstaller
 
         // Setup state + Theme Choice (Liquid Glass Theme vs Basic Program Theme)
         private string installPath;
+        [DllImport("user32.dll")]
+        private static extern bool SetWindowDisplayAffinity(IntPtr hWnd, uint dwAffinity);
+
         private bool useBasicTheme = false; // false = Liquid Glass (Melon Squishy), true = Basic Theme (Segoe UI)
-        private string selectedLang = "EN"; // EN, DE, ES, FR
+        private string selectedLang = "EN"; // EN, DE, ES, FR, IT, PT, NL, PL, RU, JA, ZH, KO
+        private bool isLangDdOpen = false;
+        private string langSearch = "";
+        private int langScroll = 0;
+        private System.Windows.Forms.Timer liveBgTimer = null;
+        private static readonly string[,] SetupLanguages = new string[,] {
+            { "EN", "English" }, { "DE", "Deutsch" }, { "ES", "Español" }, { "FR", "Français" },
+            { "IT", "Italiano" }, { "PT", "Português" }, { "NL", "Nederlands" }, { "PL", "Polski" },
+            { "RU", "Русский" }, { "JA", "日本語" }, { "ZH", "中文" }, { "KO", "한국어" }
+        };
+        private string GetSetupLangName(string code)
+        {
+            for (int i = 0; i < SetupLanguages.GetLength(0); i++)
+                if (SetupLanguages[i, 0] == code) return SetupLanguages[i, 1];
+            return "English";
+        }
+        private readonly Dictionary<string, string> setupTransCache = new Dictionary<string, string>();
+        private readonly HashSet<string> setupTransPending = new HashSet<string>();
+
+        private string SL(string key)
+        {
+            if (selectedLang == "EN" || string.IsNullOrEmpty(key)) return key;
+            if (selectedLang == "DE")
+            {
+                switch (key)
+                {
+                    case "Install Birthly": return "Birthly installieren";
+                    case "B I R T H L Y   S E T U P": return "BIRTHLY INSTALLER";
+                    case "Liquid Glass Theme  •  Melon Squishy Font  •  v0.1.0": return "Liquid-Glass-Design  •  Melon Squishy  •  v0.1.0";
+                    case "Basic Program Theme  •  Segoe UI Font  •  v0.1.0": return "Basis-Design  •  Segoe UI  •  v0.1.0";
+                    case "LIQUID GLASS (MELON)": return "LIQUID GLASS (MELON)";
+                    case "BASIC THEME (SEGOE UI)": return "BASIS-DESIGN (SEGOE UI)";
+                    case "Ready to install Birthly + README.txt + Uninstaller.": return "Bereit zum Installieren von Birthly + README.txt + Deinstaller.";
+                    case "CHOOSE PROGRAM THEME & FONT (CHANGEABLE ANYTIME IN SETTINGS):": return "PROGRAMM-DESIGN & SCHRIFTART WÄHLEN (JEDERZEIT ÄNDERBAR):";
+                    case "INSTALLATION FOLDER:": return "INSTALLATIONSORDNER:";
+                    case "Browse...": return "Durchsuchen...";
+                    case "Create Desktop shortcut": return "Desktop-Verknüpfung erstellen";
+                    case "Create Start Menu shortcuts (Birthly & Uninstall)": return "Startmenü-Verknüpfungen erstellen (Birthly & Deinstallieren)";
+                    case "Start Birthly automatically with Windows": return "Birthly automatisch mit Windows starten";
+                    case "Launch Birthly after installation": return "Birthly nach der Installation starten";
+                    case "Open README.txt after installation": return "README.txt nach der Installation öffnen";
+                    case "CANCEL": return "ABBRECHEN";
+                    case "CLOSE": return "SCHLIESSEN";
+                    case "INSTALL BIRTHLY": return "BIRTHLY INSTALLIEREN";
+                    case "INSTALLING...": return "INSTALLIERE...";
+                    case "INSTALLED ✓": return "INSTALLIERT ✓";
+                }
+            }
+            else if (selectedLang == "ES")
+            {
+                switch (key)
+                {
+                    case "Install Birthly": return "Instalar Birthly";
+                    case "B I R T H L Y   S E T U P": return "INSTALADOR BIRTHLY";
+                    case "Liquid Glass Theme  •  Melon Squishy Font  •  v0.1.0": return "Tema Liquid Glass  •  Melon Squishy  •  v0.1.0";
+                    case "Basic Program Theme  •  Segoe UI Font  •  v0.1.0": return "Tema Básico  •  Segoe UI  •  v0.1.0";
+                    case "LIQUID GLASS (MELON)": return "CRISTAL LÍQUIDO (MELON)";
+                    case "BASIC THEME (SEGOE UI)": return "TEMA BÁSICO (SEGOE UI)";
+                    case "Ready to install Birthly + README.txt + Uninstaller.": return "Listo para instalar Birthly + README.txt + Desinstalador.";
+                    case "CHOOSE PROGRAM THEME & FONT (CHANGEABLE ANYTIME IN SETTINGS):": return "ELIGE TEMA Y FUENTE (CAMBIABLE EN AJUSTES):";
+                    case "INSTALLATION FOLDER:": return "CARPETA DE INSTALACIÓN:";
+                    case "Browse...": return "Examinar...";
+                    case "Create Desktop shortcut": return "Crear acceso directo en el Escritorio";
+                    case "Create Start Menu shortcuts (Birthly & Uninstall)": return "Crear accesos en el Menú Inicio";
+                    case "Start Birthly automatically with Windows": return "Iniciar Birthly con Windows";
+                    case "Launch Birthly after installation": return "Abrir Birthly al terminar";
+                    case "Open README.txt after installation": return "Abrir README.txt al terminar";
+                    case "CANCEL": return "CANCELAR";
+                    case "CLOSE": return "CERRAR";
+                    case "INSTALL BIRTHLY": return "INSTALAR BIRTHLY";
+                    case "INSTALLING...": return "INSTALANDO...";
+                    case "INSTALLED ✓": return "INSTALADO ✓";
+                }
+            }
+            else if (selectedLang == "FR")
+            {
+                switch (key)
+                {
+                    case "Install Birthly": return "Installer Birthly";
+                    case "CHOOSE PROGRAM THEME & FONT (CHANGEABLE ANYTIME IN SETTINGS):": return "CHOISIR LE THÈME ET LA POLICE (MODIFIABLE DANS PARAMÈTRES) :";
+                    case "INSTALLATION FOLDER:": return "DOSSIER D'INSTALLATION :";
+                    case "Browse...": return "Parcourir...";
+                    case "Create Desktop shortcut": return "Créer un raccourci sur le Bureau";
+                    case "Create Start Menu shortcuts (Birthly & Uninstall)": return "Créer des raccourcis dans le Menu Démarrer";
+                    case "Start Birthly automatically with Windows": return "Démarrer Birthly avec Windows";
+                    case "Launch Birthly after installation": return "Lancer Birthly après l'installation";
+                    case "Open README.txt after installation": return "Ouvrir README.txt après l'installation";
+                    case "CANCEL": return "ANNULER";
+                    case "CLOSE": return "FERMER";
+                    case "INSTALL BIRTHLY": return "INSTALLER BIRTHLY";
+                    case "INSTALLING...": return "INSTALLATION...";
+                    case "INSTALLED ✓": return "INSTALLÉ ✓";
+                }
+            }
+            else if (selectedLang == "IT")
+            {
+                switch (key)
+                {
+                    case "Install Birthly": return "Installa Birthly";
+                    case "CHOOSE PROGRAM THEME & FONT (CHANGEABLE ANYTIME IN SETTINGS):": return "SCEGLI TEMA E FONT (MODIFICABILE NELLE IMPOSTAZIONI):";
+                    case "INSTALLATION FOLDER:": return "CARTELLA DI INSTALLAZIONE:";
+                    case "Browse...": return "Sfoglia...";
+                    case "Create Desktop shortcut": return "Crea collegamento sul Desktop";
+                    case "Create Start Menu shortcuts (Birthly & Uninstall)": return "Crea collegamenti nel Menu Start";
+                    case "Start Birthly automatically with Windows": return "Avvia Birthly con Windows";
+                    case "Launch Birthly after installation": return "Avvia Birthly dopo l'installazione";
+                    case "Open README.txt after installation": return "Apri README.txt dopo l'installazione";
+                    case "CANCEL": return "ANNULLA";
+                    case "CLOSE": return "CHIUDI";
+                    case "INSTALL BIRTHLY": return "INSTALLA BIRTHLY";
+                    case "INSTALLING...": return "INSTALLAZIONE...";
+                    case "INSTALLED ✓": return "INSTALLATO ✓";
+                }
+            }
+            else if (selectedLang == "PT")
+            {
+                switch (key)
+                {
+                    case "Install Birthly": return "Instalar Birthly";
+                    case "INSTALLATION FOLDER:": return "PASTA DE INSTALAÇÃO:";
+                    case "Browse...": return "Procurar...";
+                    case "CANCEL": return "CANCELAR";
+                    case "CLOSE": return "FECHAR";
+                    case "INSTALL BIRTHLY": return "INSTALAR BIRTHLY";
+                }
+            }
+            else if (selectedLang == "NL")
+            {
+                switch (key)
+                {
+                    case "Install Birthly": return "Birthly installeren";
+                    case "INSTALLATION FOLDER:": return "INSTALLATIEMAP:";
+                    case "Browse...": return "Bladeren...";
+                    case "CANCEL": return "ANNULEREN";
+                    case "CLOSE": return "SLUITEN";
+                    case "INSTALL BIRTHLY": return "BIRTHLY INSTALLEREN";
+                }
+            }
+            else if (selectedLang == "PL")
+            {
+                switch (key)
+                {
+                    case "Install Birthly": return "Zainstaluj Birthly";
+                    case "INSTALLATION FOLDER:": return "FOLDER INSTALACJI:";
+                    case "Browse...": return "Przeglądaj...";
+                    case "CANCEL": return "ANULUJ";
+                    case "CLOSE": return "ZAMKNIJ";
+                    case "INSTALL BIRTHLY": return "ZAINSTALUJ BIRTHLY";
+                }
+            }
+            else if (selectedLang == "RU")
+            {
+                switch (key)
+                {
+                    case "Install Birthly": return "Установить Birthly";
+                    case "INSTALLATION FOLDER:": return "ПАПКА УСТАНОВКИ:";
+                    case "Browse...": return "Обзор...";
+                    case "CANCEL": return "ОТМЕНА";
+                    case "CLOSE": return "ЗАКРЫТЬ";
+                    case "INSTALL BIRTHLY": return "УСТАНОВИТЬ BIRTHLY";
+                }
+            }
+            else if (selectedLang == "JA")
+            {
+                switch (key)
+                {
+                    case "Install Birthly": return "Birthly をインストール";
+                    case "INSTALLATION FOLDER:": return "インストール先フォルダ:";
+                    case "Browse...": return "参照...";
+                    case "CANCEL": return "キャンセル";
+                    case "CLOSE": return "閉じる";
+                    case "INSTALL BIRTHLY": return "BIRTHLY をインストール";
+                }
+            }
+            else if (selectedLang == "ZH")
+            {
+                switch (key)
+                {
+                    case "Install Birthly": return "安装 Birthly";
+                    case "INSTALLATION FOLDER:": return "安装目录:";
+                    case "Browse...": return "浏览...";
+                    case "CANCEL": return "取消";
+                    case "CLOSE": return "关闭";
+                    case "INSTALL BIRTHLY": return "安装 BIRTHLY";
+                }
+            }
+            else if (selectedLang == "KO")
+            {
+                switch (key)
+                {
+                    case "Install Birthly": return "Birthly 설치";
+                    case "INSTALLATION FOLDER:": return "설치 폴더:";
+                    case "Browse...": return "찾아보기...";
+                    case "CANCEL": return "취소";
+                    case "CLOSE": return "닫기";
+                    case "INSTALL BIRTHLY": return "BIRTHLY 설치";
+                }
+            }
+            string cKey = selectedLang + "|" + key;
+            lock (setupTransPending)
+            {
+                string cached;
+                if (setupTransCache.TryGetValue(cKey, out cached)) return cached;
+                if (!setupTransPending.Contains(cKey))
+                {
+                    setupTransPending.Add(cKey);
+                    string langSnap = selectedLang;
+                    string gCode = langSnap == "ZH" ? "zh-CN" : langSnap.ToLowerInvariant();
+                    System.Threading.ThreadPool.QueueUserWorkItem(_ => {
+                        try
+                        {
+                            System.Net.ServicePointManager.SecurityProtocol = (System.Net.SecurityProtocolType)3072;
+                            System.Net.ServicePointManager.DefaultConnectionLimit = 32;
+                            string url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=" + gCode + "&dt=t&q=" + Uri.EscapeDataString(key);
+                            using (System.Net.WebClient wc = new System.Net.WebClient())
+                            {
+                                wc.Encoding = System.Text.Encoding.UTF8;
+                                string resp = wc.DownloadString(url);
+                                int q1 = resp.IndexOf("[[[\"");
+                                if (q1 >= 0)
+                                {
+                                    int s = q1 + 4;
+                                    int e = resp.IndexOf("\",\"", s);
+                                    if (e > s)
+                                    {
+                                        string tr = resp.Substring(s, e - s).Replace("\\\"", "\"");
+                                        if (!string.IsNullOrWhiteSpace(tr))
+                                        {
+                                            lock (setupTransPending) { setupTransCache[cKey] = tr; }
+                                            try { this.BeginInvoke(new Action(() => RenderFrame(true))); } catch { }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        catch { }
+                    });
+                }
+            }
+            return key;
+        }
+        private void LoadExistingInstallSettings()
+        {
+            try
+            {
+                // Default to Windows system language (e.g. EN, DE, FR...) if supported, otherwise EN!
+                string sysIso = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.ToUpperInvariant();
+                for (int i = 0; i < SetupLanguages.GetLength(0); i++)
+                {
+                    if (SetupLanguages[i, 0] == sysIso) { selectedLang = sysIso; break; }
+                }
+
+                string[] candidates = new string[] {
+                    Path.Combine(installPath, "birthdays_config.json"),
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Birthly", "birthdays_config.json")
+                };
+                foreach (string c in candidates)
+                {
+                    if (!File.Exists(c)) continue;
+                    string json = File.ReadAllText(c, System.Text.Encoding.UTF8);
+                    if (json.IndexOf("\"UseBasicTheme\":true", StringComparison.OrdinalIgnoreCase) >= 0) { useBasicTheme = true; themeBlend = 1f; }
+                    else if (json.IndexOf("\"UseBasicTheme\":false", StringComparison.OrdinalIgnoreCase) >= 0) { useBasicTheme = false; themeBlend = 0f; }
+                    int li = json.IndexOf("\"Language\":\"", StringComparison.OrdinalIgnoreCase);
+                    if (li >= 0)
+                    {
+                        int s = li + 12;
+                        int e = json.IndexOf('"', s);
+                        if (e > s && (e - s) <= 5) selectedLang = json.Substring(s, e - s).ToUpperInvariant();
+                    }
+                    break;
+                }
+            }
+            catch { }
+        }
         private bool optDesktop = true;
         private bool optStartMenu = true;
         private bool optAutoStart = true;
@@ -187,6 +463,7 @@ namespace BirthlyInstaller
             deskH = vScreen.Height;
             AllocatePersistentDIB();
             CaptureDesktopBackdrop();
+            if (!previewMode) LoadExistingInstallSettings();
             PrecomputeOpticalLUT();
 
             if (!previewMode)
@@ -707,17 +984,18 @@ namespace BirthlyInstaller
                 }
                 Font tf = GetFont(useBasicTheme ? 20f : 19f, FontStyle.Bold, true);
                 Font sf = GetFont(12f, FontStyle.Regular, false);
-                DrawCrispString(g, useBasicTheme ? "Install Birthly" : "B I R T H L Y   S E T U P", tf, pad + 56f, topY + 1f, Color.FromArgb(255, 255, 255, 255));
+                string hdrTitle = useBasicTheme ? SL("Install Birthly") : SL("B I R T H L Y   S E T U P").Replace("B I R T H L Y   S E T U P", "BIRTHLY SETUP");
+                DrawCrispString(g, hdrTitle, tf, pad + 56f, topY + 1f, Color.FromArgb(255, 255, 255, 255));
                 DrawCrispString(g, useBasicTheme
-                    ? "Basic Program Theme  •  Segoe UI Font  •  v1.0"
-                    : "Liquid Glass Theme  •  Melon Squishy Font  •  v1.0",
+                    ? SL("Basic Program Theme  •  Segoe UI Font  •  v0.1.0")
+                    : SL("Liquid Glass Theme  •  Melon Squishy Font  •  v0.1.0"),
                     sf, pad + 56f, topY + 26f, Color.FromArgb(215, 232, 240, 255));
 
                 RectangleF closeBtn = new RectangleF(edgeMargin + winW - 24f - 30f, topY + 6f, 30f, 30f);
-                RectangleF langBtn = new RectangleF(closeBtn.X - 82f, topY + 6f, 74f, 30f);
-                DrawSetupPill(g, langBtn, "🌐 " + selectedLang, false, "lang_cycle", false, false);
+                RectangleF langBtn = new RectangleF(closeBtn.X - 118f, topY + 6f, 110f, 30f);
+                DrawSetupPill(g, langBtn, GetSetupLangName(selectedLang) + (isLangDdOpen ? " ▲" : " ▼"), isLangDdOpen, "lang_dd", false, false);
                 DrawSetupPill(g, closeBtn, "×", false, "close", false, false);
-                if (!isInstalling) zones.Add(new HitZone { Id = "lang_cycle", Bounds = langBtn });
+                if (!isInstalling) zones.Add(new HitZone { Id = "lang_dd", Bounds = langBtn });
                 zones.Add(new HitZone { Id = "close", Bounds = closeBtn });
 
                 float divY = topY + 54f;
@@ -727,14 +1005,14 @@ namespace BirthlyInstaller
                 // ── THEME & DEFAULT FONT SELECTOR (Live-switches the installer AND sets Birthly's initial theme & font!) ──
                 float cy = divY + 11f;
                 Font lf = GetFont(11.5f, FontStyle.Bold, false);
-                DrawCrispString(g, "CHOOSE PROGRAM THEME & FONT (CHANGEABLE ANYTIME IN SETTINGS):", lf, pad, cy, Color.FromArgb(230, 235, 242, 255));
+                DrawCrispString(g, SL("CHOOSE PROGRAM THEME & FONT (CHANGEABLE ANYTIME IN SETTINGS):"), lf, pad, cy, Color.FromArgb(230, 235, 242, 255));
                 cy += 19f;
 
                 float halfW = (innerW - 10f) * 0.5f;
                 RectangleF glassThemeBtn = new RectangleF(pad, cy, halfW, 32f);
                 RectangleF basicThemeBtn = new RectangleF(pad + halfW + 10f, cy, halfW, 32f);
-                DrawSetupPill(g, glassThemeBtn, (!useBasicTheme ? "✓  " : "") + "LIQUID GLASS (MELON)", !useBasicTheme, "theme_glass", false, true);
-                DrawSetupPill(g, basicThemeBtn, (useBasicTheme ? "✓  " : "") + "BASIC THEME (SEGOE UI)", useBasicTheme, "theme_basic", false, false);
+                DrawSetupPill(g, glassThemeBtn, (!useBasicTheme ? "✓  " : "") + SL("LIQUID GLASS (MELON)"), !useBasicTheme, "theme_glass", false, true);
+                DrawSetupPill(g, basicThemeBtn, (useBasicTheme ? "✓  " : "") + SL("BASIC THEME (SEGOE UI)"), useBasicTheme, "theme_basic", false, false);
                 if (!isInstalling)
                 {
                     zones.Add(new HitZone { Id = "theme_glass", Bounds = glassThemeBtn });
@@ -743,15 +1021,15 @@ namespace BirthlyInstaller
                 cy += 42f;
 
                 // Install Folder row
-                DrawCrispString(g, "INSTALLATION FOLDER:", lf, pad, cy, Color.FromArgb(230, 235, 242, 255));
+                DrawCrispString(g, SL("INSTALLATION FOLDER:"), lf, pad, cy, Color.FromArgb(230, 235, 242, 255));
                 cy += 19f;
 
-                float browseW = 100f;
+                float browseW = 108f;
                 RectangleF pathRect = new RectangleF(pad, cy, innerW - browseW - 8f, 30f);
                 RectangleF browseBtn = new RectangleF(pathRect.Right + 8f, cy, browseW, 30f);
                 // Always render file path in crisp Segoe UI so backslashes and folder names are 100% legible!
                 DrawSetupPill(g, pathRect, installPath, false, "path_box", true, false);
-                DrawSetupPill(g, browseBtn, "Browse...", false, "browse", false, false);
+                DrawSetupPill(g, browseBtn, SL("Browse..."), false, "browse", false, false);
                 if (!isInstalling) zones.Add(new HitZone { Id = "browse", Bounds = browseBtn });
                 cy += 40f;
 
@@ -759,11 +1037,11 @@ namespace BirthlyInstaller
                 string[] optIds = new string[] { "opt_desk", "opt_start", "opt_auto", "opt_launch", "opt_readme" };
                 bool[] optVals = new bool[] { optDesktop, optStartMenu, optAutoStart, optLaunch, optReadme };
                 string[] optTxt = new string[] {
-                    "Create Desktop shortcut",
-                    "Create Start Menu shortcuts (Birthly & Uninstall)",
-                    "Start Birthly automatically with Windows",
-                    "Launch Birthly after installation",
-                    "Open README.txt after installation"
+                    SL("Create Desktop shortcut"),
+                    SL("Create Start Menu shortcuts (Birthly & Uninstall)"),
+                    SL("Start Birthly automatically with Windows"),
+                    SL("Launch Birthly after installation"),
+                    SL("Open README.txt after installation")
                 };
 
                 for (int i = 0; i < optIds.Length; i++)
@@ -792,16 +1070,68 @@ namespace BirthlyInstaller
                 cy += 13f;
 
                 Font stf = GetFont(11.5f, FontStyle.Regular, false);
-                DrawCrispString(g, statusText, stf, new RectangleF(pad, cy, innerW, 18f), sfNear, Color.FromArgb(230, 235, 242, 255));
+                DrawCrispString(g, SL(statusText), stf, new RectangleF(pad, cy, innerW, 18f), sfNear, Color.FromArgb(230, 235, 242, 255));
 
                 // Bottom Cancel / Install buttons
                 float botY = edgeMargin + winH - 18f - 34f;
                 RectangleF cancelBtn = new RectangleF(pad, botY, 118f, 34f);
-                RectangleF installBtn = new RectangleF(pad + innerW - 176f, botY, 176f, 34f);
-                DrawSetupPill(g, cancelBtn, installDone ? "CLOSE" : "CANCEL", false, "cancel", false, !useBasicTheme, false);
-                DrawSetupPill(g, installBtn, installDone ? "INSTALLED ✓" : (isInstalling ? "INSTALLING..." : "INSTALL BIRTHLY"), true, "install", false, !useBasicTheme, true);
+                RectangleF installBtn = new RectangleF(pad + innerW - 186f, botY, 186f, 34f);
+                DrawSetupPill(g, cancelBtn, installDone ? SL("CLOSE") : SL("CANCEL"), false, "cancel", false, !useBasicTheme, false);
+                DrawSetupPill(g, installBtn, installDone ? SL("INSTALLED ✓") : (isInstalling ? SL("INSTALLING...") : SL("INSTALL BIRTHLY")), true, "install", false, !useBasicTheme, true);
                 zones.Add(new HitZone { Id = "cancel", Bounds = cancelBtn });
                 if (!isInstalling && !installDone) zones.Add(new HitZone { Id = "install", Bounds = installBtn });
+
+                // Single-Column Searchable & Scrollable True-Liquid-Glass Language Dropdown (exact match to Main Settings!)
+                if (isLangDdOpen && !isInstalling)
+                {
+                    List<int> matchIdx = new List<int>();
+                    string lq = (langSearch ?? "").Trim();
+                    for (int li = 0; li < SetupLanguages.GetLength(0); li++)
+                    {
+                        if (lq.Length == 0 || SetupLanguages[li, 1].IndexOf(lq, StringComparison.OrdinalIgnoreCase) >= 0 || SetupLanguages[li, 0].IndexOf(lq, StringComparison.OrdinalIgnoreCase) >= 0)
+                            matchIdx.Add(li);
+                    }
+                    int maxVis = 6;
+                    int maxScr = Math.Max(0, matchIdx.Count - maxVis);
+                    if (langScroll > maxScr) langScroll = maxScr;
+                    if (langScroll < 0) langScroll = 0;
+                    int showCnt = Math.Min(maxVis, matchIdx.Count - langScroll);
+
+                    float ddW = 196f;
+                    float ddH = 34f + Math.Max(1, showCnt) * 28f + 10f;
+                    RectangleF ddRect = new RectangleF(langBtn.Right - ddW, langBtn.Bottom + 5f, ddW, ddH);
+                    using (GraphicsPath dp = RoundRect(ddRect, useBasicTheme ? 8f : 14f))
+                    {
+                        CompositingMode prevComp = g.CompositingMode;
+                        g.CompositingMode = CompositingMode.SourceCopy;
+                        using (SolidBrush clrBr = new SolidBrush(useBasicTheme ? Color.FromArgb(248, 22, 27, 40) : Color.FromArgb(0, 0, 0, 0)))
+                            g.FillPath(clrBr, dp);
+                        g.CompositingMode = prevComp;
+                        if (!useBasicTheme)
+                        {
+                            using (SolidBrush glassTint = new SolidBrush(Color.FromArgb(42, 24, 30, 48)))
+                                g.FillPath(glassTint, dp);
+                        }
+                        using (Pen dpen = new Pen(Color.FromArgb(150, 255, 255, 255), 1.15f))
+                            g.DrawPath(dpen, dp);
+                    }
+
+                    // Search Bar inside Dropdown
+                    RectangleF sRect = new RectangleF(ddRect.X + 6f, ddRect.Y + 6f, ddRect.Width - 12f, 24f);
+                    string sDisp = string.IsNullOrEmpty(langSearch) ? "🔍 Search..." : ("🔍 " + langSearch + "|");
+                    DrawSetupPill(g, sRect, sDisp, true, "lang_search", true, false);
+                    zones.Add(new HitZone { Id = "lang_search", Bounds = sRect });
+
+                    for (int mi = 0; mi < showCnt; mi++)
+                    {
+                        int idxL = matchIdx[langScroll + mi];
+                        string lCode = SetupLanguages[idxL, 0];
+                        string lName = SetupLanguages[idxL, 1];
+                        RectangleF ir = new RectangleF(ddRect.X + 6f, sRect.Bottom + 5f + mi * 28f, ddRect.Width - 12f, 24f);
+                        DrawSetupPill(g, ir, lName, selectedLang == lCode, "set_lang_" + lCode, false, false);
+                        zones.Add(new HitZone { Id = "set_lang_" + lCode, Bounds = ir });
+                    }
+                }
 
                 BitmapData bd = reusableUiBmp.LockBits(new Rectangle(0, 0, surfW, surfH), ImageLockMode.ReadOnly, PixelFormat.Format32bppPArgb);
                 Marshal.Copy(bd.Scan0, reusableUiPx, 0, reusableUiPx.Length);
@@ -968,7 +1298,22 @@ namespace BirthlyInstaller
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
+            try { SetWindowDisplayAffinity(this.Handle, 0x00000011); } catch { }
             RenderFrame(true);
+            if (liveBgTimer == null)
+            {
+                liveBgTimer = new System.Windows.Forms.Timer();
+                liveBgTimer.Interval = 60;
+                liveBgTimer.Tick += (s, ev) => {
+                    if (!isDragging && !useBasicTheme && this.Visible)
+                    {
+                        CaptureDesktopBackdrop();
+                        lastBgX = int.MinValue; // Force CompositeSurface to rebake cachedBackdropBuf from the new live capture!
+                        RenderFrame(false);
+                    }
+                };
+                liveBgTimer.Start();
+            }
         }
 
         private string HitTest(int x, int y)
@@ -1035,6 +1380,29 @@ namespace BirthlyInstaller
             if (isDragging) { isDragging = false; this.Capture = false; this.Location = new Point(curX, curY); }
         }
 
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            base.OnMouseWheel(e);
+            if (isLangDdOpen)
+            {
+                langScroll += (e.Delta < 0) ? 1 : -1;
+                if (langScroll < 0) langScroll = 0;
+                RenderFrame(true);
+            }
+        }
+
+        protected override void OnKeyPress(KeyPressEventArgs e)
+        {
+            base.OnKeyPress(e);
+            if (!isLangDdOpen) return;
+            char c = e.KeyChar;
+            if (c == '\b') { if (langSearch.Length > 0) langSearch = langSearch.Substring(0, langSearch.Length - 1); langScroll = 0; }
+            else if (c == 27) { isLangDdOpen = false; }
+            else if (!char.IsControl(c) && langSearch.Length < 16) { langSearch += c; langScroll = 0; }
+            e.Handled = true;
+            RenderFrame(true);
+        }
+
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
@@ -1051,13 +1419,26 @@ namespace BirthlyInstaller
             }
 
             if (hid == "close" || hid == "cancel") { this.Close(); return; }
-            if (hid == "lang_cycle")
+            if (hid == "lang_dd")
             {
-                selectedLang = selectedLang == "EN" ? "DE" : (selectedLang == "DE" ? "ES" : (selectedLang == "ES" ? "FR" : "EN"));
-                statusText = "Language: " + selectedLang;
+                isLangDdOpen = !isLangDdOpen;
+                if (isLangDdOpen) { langSearch = ""; langScroll = 0; }
                 RenderFrame(true);
                 return;
             }
+            if (hid == "lang_search")
+            {
+                return;
+            }
+            if (hid != null && hid.StartsWith("set_lang_"))
+            {
+                selectedLang = hid.Substring("set_lang_".Length);
+                isLangDdOpen = false;
+                langSearch = "";
+                RenderFrame(true);
+                return;
+            }
+            if (isLangDdOpen) { isLangDdOpen = false; RenderFrame(true); }
             if (hid == "theme_glass")
             {
                 useBasicTheme = false;

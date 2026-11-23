@@ -1169,12 +1169,13 @@ namespace BirthlyUninstaller
             RenderFrame(true);
             Application.DoEvents();
 
-            // Schedule self-deletion of Uninstall.exe and installDir after this process exits
+            // Schedule self-deletion of Uninstall.exe and installDir from %TEMP% so cmd.exe never locks installDir!
             try
             {
                 ProcessStartInfo psi = new ProcessStartInfo("cmd.exe",
-                    string.Format("/C ping 127.0.0.1 -n 3 > nul & del /f /q \"{0}\" & rmdir /s /q \"{1}\"", selfPath, installDir))
+                    string.Format("/C cd /d \"%TEMP%\" & for /L %i in (1,1,20) do (if exist \"{1}\" (ping 127.0.0.1 -n 2 > nul & del /f /q \"{0}\" 2>nul & rmdir /s /q \"{1}\" 2>nul))", selfPath, installDir))
                 {
+                    WorkingDirectory = Path.GetTempPath(),
                     WindowStyle = ProcessWindowStyle.Hidden,
                     CreateNoWindow = true,
                     UseShellExecute = false
